@@ -13,10 +13,14 @@ int main() {
     return 0;
     }
 
+
+
+
 #include <iostream>
 #include <stack>
  
 int main()
 {
     std::stack<std::string> stack;    // пустой стек строк
+
 }
