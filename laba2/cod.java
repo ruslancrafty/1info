@@ -22,4 +22,4 @@ dq.pollFirst();
 PriorityQueue<Integer> pq = new PriorityQueue<>();
 pq.offer(10);
 pq.offer(5);
-pq.poll(); // 5 (min-heap по умолчанию)
+pq.poll(); 
