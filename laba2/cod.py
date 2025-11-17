@@ -2,9 +2,9 @@ python
 
 Мультисписок (вложенный список)
 nested_list = [[1, 2], [3, 4], [5, 6]]
-flat_list = [item for sublist in nested_list for item in sublist]
+flat_list = [item for sublist in nested_list for item in sublist
+'---------------------'
 Очередь
-python
 from queue import Queue
 q = Queue()
 q.put(1)
