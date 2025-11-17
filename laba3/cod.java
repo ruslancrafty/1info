@@ -86,6 +86,215 @@ public class BinaryHeap {
         System.out.println("New min: " + heap.getMin());  // 3
     }
 }
+......................................
+    public class BinomialHeap {
+    private static class Node {
+        int key;
+        int degree;
+        Node parent;
+        Node child;
+        Node sibling;
+        
+        Node(int key) {
+            this.key = key;
+            this.degree = 0;
+            this.parent = null;
+            this.child = null;
+            this.sibling = null;
+        }
+    }
+    
+    private Node head;
+    
+    public BinomialHeap() {
+        head = null;
+    }
+    
+    public boolean isEmpty() {
+        return head == null;
+    }
+    
+    public void insert(int key) {
+        BinomialHeap newHeap = new BinomialHeap();
+        Node newNode = new Node(key);
+        newHeap.head = newNode;
+        head = union(this, newHeap).head;
+    }
+    
+    public Integer getMin() {
+        if (head == null) return null;
+        
+        Node minNode = head;
+        Node current = head.sibling;
+        
+        while (current != null) {
+            if (current.key < minNode.key) {
+                minNode = current;
+            }
+            current = current.sibling;
+        }
+        
+        return minNode.key;
+    }
+    
+    private Node merge(Node h1, Node h2) {
+        if (h1 == null) return h2;
+        if (h2 == null) return h1;
+        
+        Node result = null;
+        Node current = null;
+        
+        while (h1 != null && h2 != null) {
+            if (h1.degree <= h2.degree) {
+                if (result == null) {
+                    result = h1;
+                    current = h1;
+                } else {
+                    current.sibling = h1;
+                    current = current.sibling;
+                }
+                h1 = h1.sibling;
+            } else {
+                if (result == null) {
+                    result = h2;
+                    current = h2;
+                } else {
+                    current.sibling = h2;
+                    current = current.sibling;
+                }
+                h2 = h2.sibling;
+            }
+        }
+        
+        if (h1 != null) {
+            current.sibling = h1;
+        } else {
+            current.sibling = h2;
+        }
+        
+        return result;
+    }
+    
+    private void link(Node y, Node z) {
+        y.parent = z;
+        y.sibling = z.child;
+        z.child = y;
+        z.degree++;
+    }
+    
+    private BinomialHeap union(BinomialHeap h1, BinomialHeap h2) {
+        BinomialHeap newHeap = new BinomialHeap();
+        newHeap.head = merge(h1.head, h2.head);
+        
+        if (newHeap.head == null) {
+            return newHeap;
+        }
+        
+        Node prev = null;
+        Node x = newHeap.head;
+        Node next = x.sibling;
+        
+        while (next != null) {
+            if (x.degree != next.degree || 
+                (next.sibling != null && next.sibling.degree == x.degree)) {
+                prev = x;
+                x = next;
+            } else if (x.key <= next.key) {
+                x.sibling = next.sibling;
+                link(next, x);
+            } else {
+                if (prev == null) {
+                    newHeap.head = next;
+                } else {
+                    prev.sibling = next;
+                }
+                link(x, next);
+                x = next;
+            }
+            next = x.sibling;
+        }
+        
+        return newHeap;
+    }
+    
+    public Integer extractMin() {
+        if (head == null) return null;
+        
+        // Find min node and its previous
+        Node minNode = head;
+        Node prevMin = null;
+        Node prev = null;
+        Node current = head;
+        
+        while (current != null) {
+            if (current.key < minNode.key) {
+                minNode = current;
+                prevMin = prev;
+            }
+            prev = current;
+            current = current.sibling;
+        }
+        
+        // Remove min node from list
+        if (prevMin != null) {
+            prevMin.sibling = minNode.sibling;
+        } else {
+            head = minNode.sibling;
+        }
+        
+        // Reverse the children of min node
+        Node childHeap = reverseList(minNode.child);
+        
+        // Union with main heap
+        BinomialHeap tempHeap = new BinomialHeap();
+        tempHeap.head = childHeap;
+        head = union(this, tempHeap).head;
+        
+        return minNode.key;
+    }
+    
+    private Node reverseList(Node node) {
+        Node prev = null;
+        Node current = node;
+        
+        while (current != null) {
+            Node next = current.sibling;
+            current.sibling = prev;
+            current.parent = null;
+            prev = current;
+            current = next;
+        }
+        
+        return prev;
+    }
+    
+    public void printHeap() {
+        Node current = head;
+        while (current != null) {
+            System.out.print("Tree degree " + current.degree + ": " + current.key);
+            if (current.sibling != null) System.out.print(" -> ");
+            current = current.sibling;
+        }
+        System.out.println();
+    }
+
+    // Тестирование
+    public static void main(String[] args) {
+        BinomialHeap heap = new BinomialHeap();
+        heap.insert(10);
+        heap.insert(5);
+        heap.insert(20);
+        heap.insert(3);
+        heap.insert(8);
+        
+        System.out.println("Min: " + heap.getMin());  // 3
+        System.out.println("Extract min: " + heap.extractMin());  // 3
+        System.out.println("New min: " + heap.getMin());  // 5
+        
+        heap.printHeap();
+    }
+}
+..................................
 2.куча фибоначи
   public class FibonacciHeap<T extends Comparable<T>> {
     private static class Node<T> {
@@ -341,6 +550,7 @@ public class BinaryHeap {
         System.out.println("After decrease key, min: " + fibHeap.getMin());  // 2
     }
 }
+.............................................
 3. Хеш-таблица
 java
 public class HashTable<K, V> {
