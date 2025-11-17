@@ -62,6 +62,164 @@ print("Min:", heap.get_min())  # 1
 print("Extract min:", heap.extract_min())  # 1
 print("New min:", heap.get_min())  # 3
 ...................................................
+биноминарная куча
+class BinomialNode:
+    def __init__(self, key):
+        self.key = key
+        self.degree = 0
+        self.parent = None
+        self.child = None
+        self.sibling = None
+
+class BinomialHeap:
+    def __init__(self):
+        self.head = None
+    
+    def is_empty(self):
+        return self.head is None
+    
+    def insert(self, key):
+        new_heap = BinomialHeap()
+        new_node = BinomialNode(key)
+        new_heap.head = new_node
+        self.head = self.union(new_heap).head
+        return new_node
+    
+    def get_min(self):
+        if self.is_empty():
+            return None
+        
+        min_node = self.head
+        current = self.head.sibling
+        
+        while current:
+            if current.key < min_node.key:
+                min_node = current
+            current = current.sibling
+        
+        return min_node.key
+    
+    def merge(self, h1, h2):
+        if h1 is None:
+            return h2
+        if h2 is None:
+            return h1
+        
+        result = None
+        if h1.degree <= h2.degree:
+            result = h1
+            h1 = h1.sibling
+        else:
+            result = h2
+            h2 = h2.sibling
+        
+        current = result
+        while h1 and h2:
+            if h1.degree <= h2.degree:
+                current.sibling = h1
+                h1 = h1.sibling
+            else:
+                current.sibling = h2
+                h2 = h2.sibling
+            current = current.sibling
+        
+        current.sibling = h1 if h1 else h2
+        return result
+    
+    def link(self, y, z):
+        y.parent = z
+        y.sibling = z.child
+        z.child = y
+        z.degree += 1
+    
+    def union(self, h2):
+        new_heap = BinomialHeap()
+        new_heap.head = self.merge(self.head, h2.head)
+        
+        if new_heap.head is None:
+            return new_heap
+        
+        prev = None
+        x = new_heap.head
+        next_node = x.sibling
+        
+        while next_node:
+            if (x.degree != next_node.degree or 
+                (next_node.sibling and next_node.sibling.degree == x.degree)):
+                prev = x
+                x = next_node
+            elif x.key <= next_node.key:
+                x.sibling = next_node.sibling
+                self.link(next_node, x)
+            else:
+                if prev is None:
+                    new_heap.head = next_node
+                else:
+                    prev.sibling = next_node
+                self.link(x, next_node)
+                x = next_node
+            next_node = x.sibling
+        
+        return new_heap
+    
+    def extract_min(self):
+        if self.is_empty():
+            return None
+        
+        # Находим минимальный узел и его предыдущий
+        min_node = self.head
+        prev_min = None
+        prev = None
+        current = self.head
+        
+        while current:
+            if current.key < min_node.key:
+                min_node = current
+                prev_min = prev
+            prev = current
+            current = current.sibling
+        
+        # Удаляем минимальный узел из списка
+        if prev_min is None:
+            self.head = min_node.sibling
+        else:
+            prev_min.sibling = min_node.sibling
+        
+        # Создаем кучу из детей минимального узла
+        child_heap = BinomialHeap()
+        if min_node.child:
+            # Реверсируем порядок детей
+            child = min_node.child
+            children = []
+            while child:
+                children.append(child)
+                child.parent = None
+                child = child.sibling
+            
+            children.reverse()
+            child_heap.head = children[0]
+            current_child = child_heap.head
+            for i in range(1, len(children)):
+                current_child.sibling = children[i]
+                current_child = current_child.sibling
+            current_child.sibling = None
+        
+        # Объединяем с основной кучей
+        self.head = self.union(child_heap).head
+        return min_node.key
+
+# Тестирование
+bheap = BinomialHeap()
+bheap.insert(10)
+bheap.insert(5)
+bheap.insert(20)
+bheap.insert(3)
+bheap.insert(8)
+
+print("Min:", bheap.get_min())  # 3
+print("Extract min:", bheap.extract_min())  # 3
+print("New min:", bheap.get_min())  # 5
+..................................................
 куча фибоначи
 
 class FibonacciNode:
