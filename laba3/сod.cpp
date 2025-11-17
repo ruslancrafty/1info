@@ -75,6 +75,201 @@ int main() {
     
     return 0;
 }
+.................................................
+    #include <iostream>
+#include <vector>
+#include <algorithm>
+
+struct BinomialNode {
+    int key;
+    int degree;
+    BinomialNode* parent;
+    BinomialNode* child;
+    BinomialNode* sibling;
+    
+    BinomialNode(int k) : key(k), degree(0), parent(nullptr), 
+                         child(nullptr), sibling(nullptr) {}
+};
+
+class BinomialHeap {
+private:
+    BinomialNode* head;
+    
+    BinomialNode* merge(BinomialNode* h1, BinomialNode* h2) {
+        if (!h1) return h2;
+        if (!h2) return h1;
+        
+        BinomialNode* result = nullptr;
+        BinomialNode** current = &result;
+        
+        while (h1 && h2) {
+            if (h1->degree <= h2->degree) {
+                *current = h1;
+                h1 = h1->sibling;
+            } else {
+                *current = h2;
+                h2 = h2->sibling;
+            }
+            current = &((*current)->sibling);
+        }
+        
+        *current = h1 ? h1 : h2;
+        return result;
+    }
+    
+    void link(BinomialNode* y, BinomialNode* z) {
+        y->parent = z;
+        y->sibling = z->child;
+        z->child = y;
+        z->degree++;
+    }
+    
+    BinomialNode* unionHeaps(BinomialNode* h1, BinomialNode* h2) {
+        BinomialNode* newHead = merge(h1, h2);
+        if (!newHead) return nullptr;
+        
+        BinomialNode* prev = nullptr;
+        BinomialNode* x = newHead;
+        BinomialNode* next = x->sibling;
+        
+        while (next) {
+            if (x->degree != next->degree || 
+                (next->sibling && next->sibling->degree == x->degree)) {
+                prev = x;
+                x = next;
+            } else if (x->key <= next->key) {
+                x->sibling = next->sibling;
+                link(next, x);
+            } else {
+                if (!prev) {
+                    newHead = next;
+                } else {
+                    prev->sibling = next;
+                }
+                link(x, next);
+                x = next;
+            }
+            next = x->sibling;
+        }
+        
+        return newHead;
+    }
+    
+    BinomialNode* reverseList(BinomialNode* node) {
+        BinomialNode* prev = nullptr;
+        BinomialNode* current = node;
+        
+        while (current) {
+            BinomialNode* next = current->sibling;
+            current->sibling = prev;
+            current->parent = nullptr;
+            prev = current;
+            current = next;
+        }
+        
+        return prev;
+    }
+
+public:
+    BinomialHeap() : head(nullptr) {}
+    
+    bool is_empty() const {
+        return head == nullptr;
+    }
+    
+    void insert(int key) {
+        BinomialHeap newHeap;
+        BinomialNode* newNode = new BinomialNode(key);
+        newHeap.head = newNode;
+        head = unionHeaps(head, newHeap.head);
+    }
+    
+    int get_min() {
+        if (!head) throw std::runtime_error("Heap is empty");
+        
+        BinomialNode* minNode = head;
+        BinomialNode* current = head->sibling;
+        
+        while (current) {
+            if (current->key < minNode->key) {
+                minNode = current;
+            }
+            current = current->sibling;
+        }
+        
+        return minNode->key;
+    }
+    
+    int extract_min() {
+        if (!head) throw std::runtime_error("Heap is empty");
+        
+        // Find min node and its previous
+        BinomialNode* minNode = head;
+        BinomialNode* prevMin = nullptr;
+        BinomialNode* prev = nullptr;
+        BinomialNode* current = head;
+        
+        while (current) {
+            if (current->key < minNode->key) {
+                minNode = current;
+                prevMin = prev;
+            }
+            prev = current;
+            current = current->sibling;
+        }
+        
+        // Remove min node from list
+        if (prevMin) {
+            prevMin->sibling = minNode->sibling;
+        } else {
+            head = minNode->sibling;
+        }
+        
+        // Create heap from min node's children
+        BinomialNode* childHeap = reverseList(minNode->child);
+        
+        // Union with main heap
+        head = unionHeaps(head, childHeap);
+        
+        int minKey = minNode->key;
+        delete minNode;
+        return minKey;
+    }
+    
+    void print_heap() {
+        BinomialNode* current = head;
+        while (current) {
+            std::cout << "Tree degree " << current->degree << ": " << current->key;
+            if (current->sibling) std::cout << " -> ";
+            current = current->sibling;
+        }
+        std::cout << std::endl;
+    }
+    
+    ~BinomialHeap() {
+        while (!is_empty()) {
+            extract_min();
+        }
+    }
+};
+
+// Тестирование
+int main() {
+    BinomialHeap heap;
+    heap.insert(10);
+    heap.insert(5);
+    heap.insert(20);
+    heap.insert(3);
+    heap.insert(8);
+    
+    std::cout << "Min: " << heap.get_min() << std::endl;  // 3
+    std::cout << "Extract min: " << heap.extract_min() << std::endl;  // 3
+    std::cout << "New min: " << heap.get_min() << std::endl;  // 5
+    
+    heap.print_heap();
+    return 0;
+}
+...............................................
 2. куча Фибоначи
 #include <iostream>
 #include <vector>
