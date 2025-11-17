@@ -1,4 +1,4 @@
-python
+
 
 Мультисписок (вложенный список)
 nested_list = [[1, 2], [3, 4], [5, 6]]
@@ -8,7 +8,7 @@ flat_list = [item for sublist in nested_list for item in sublist
 from queue import Queue
 q = Queue()
 q.put(1)
-q.get()  # 1
+q.get()  
 '------------------'
 Дек
 from collections import deque
@@ -23,4 +23,4 @@ import heapq
 heap = []
 heapq.heappush(heap, (2, "mid"))
 heapq.heappush(heap, (1, "high"))
-heapq.heappop(heap)  # (1, "high")
+heapq.heappop(heap)  
