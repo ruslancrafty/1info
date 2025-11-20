@@ -14,23 +14,17 @@
 Критерий остановки: Алгоритм выполняется заданное количество итераций  
 ........    
 Инициализация: Случайное распределение  
-
 assignment[i] = (int) (Math.random() * m);  
 Локальный поиск: Выбор случайной задачи  
-
 int taskIdx = (int) (Math.random() * n);  
 Локальный поиск: Перебор всех других машин  
-
 for (int newMachine = 0; newMachine < m; newMachine++) {  
     if (newMachine == currentMachine) continue;  
 Локальный поиск: Вычисление нового makespan  
-
 int newMakespan = getMakespan(newLoad);  
 Локальный поиск: Принятие улучшения  
-
 if (newMakespan < currentMakespan) {  
 Критерий остановки: Фиксированное число итераций  
-
 for (int iter = 0; iter < maxIter; iter++) {  
 .........  
 Временная сложность O(maxIter × n × m) возникает потому, что алгоритм выполняет maxIter итераций, на каждой из которых для одной из n задач проверяет возможность перемещения на каждую из m машин.  
